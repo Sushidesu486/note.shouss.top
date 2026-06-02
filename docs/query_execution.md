@@ -60,29 +60,23 @@
     4. 过滤后满足条件的 tuple 传给 Join 做 Probe，匹配成功的 tuple 逐个向上传递给 Project
     5. Project 每次收到一个 tuple，输出一行结果
 
-??? question "为什么 Hash Join 需要两个 Pipeline？"
-    如果 Hash Join 在哈希表没有完全构建好之前就开始 Probe，可能会产生 **false negative**——因为要匹配的 tuple 可能还没被插入哈希表。所以数据库系统知道 Pipeline #1（Build Side）必须完成后，才能开始 Pipeline #2（Probe Side）。
+    注意 Hash Join 在哈希表未完全构建前就开始 Probe 会产生 **false negative**（要匹配的 tuple 可能还没被插入哈希表），所以 Pipeline #1（Build Side）必须完成后才能开始 Pipeline #2（Probe Side）。
 
 !!! tip "Pipeline Breaker（流水线断点）"
-    Pipeline Breaker 是指必须等待所有数据到齐才能继续的算子边界。在 Hash Join 的例子中，Scan(R) → Build Hash Table 就是一个 pipeline breaker。常见的 pipeline breaker 还包括：
+    Pipeline Breaker 是指必须等待所有数据到齐才能继续的算子边界。常见的 pipeline breaker 包括：
 
     - Hash Join 的 Build Side
     - Sort（ORDER BY）——无法在看到所有输入前确定排序
     - 未去关联的嵌套子查询
 
-??? success "迭代器模型优点"
-    - 实现简单，几乎所有数据库系统都支持
-    - 易于调试——可以逐步跟踪函数调用链
-    - 输出控制容易——实现 `LIMIT 10` 只需在收到 10 个 tuple 后停止调用 `Next()`
-    - 算子之间完全解耦——父算子不关心子算子的实现细节
+| 优点 | 缺点 |
+|------|------|
+| 实现简单，几乎所有数据库系统都支持 | 每个 tuple 都涉及一次虚函数调用，对内存数据库开销大 |
+| 易于调试——可以逐步跟踪函数调用链 | 指令缓存局部性差——CPU 在不同算子的代码之间频繁跳转 |
+| 输出控制容易——实现 `LIMIT 10` 只需在收到 10 个 tuple 后停止 | 难以从外部中断查询——控制流已深入递归调用栈中 |
+| 算子之间完全解耦——父算子不关心子算子的实现细节 | |
 
-??? danger "迭代器模型缺点"
-    - 每个 tuple 都涉及一次虚函数调用（virtual function call），对于内存数据库来说，这些函数调用开销会累积
-    - 指令缓存局部性差——CPU 在不同算子的代码之间频繁跳转
-    - 难以从外部中断查询——控制流已深入递归调用栈中
-
-!!! quote "历史背景"
-    该模型也称为 **Volcano Model**，得名于 Goetz Graefe 在 1990 年代初发表的 Volcano 论文。Graefe 同时也是 B+ 树经典教材的作者。
+该模型也称为 **Volcano Model**，得名于 Goetz Graefe 在 1990 年代初发表的 Volcano 论文。Graefe 同时也是 B+ 树经典教材的作者。
 
 ### 2.2 物化模型（Materialization Model）
 
@@ -100,19 +94,15 @@
             return output_buffer
     ```
 
-??? warning "物化模型的问题"
-    如果 S 有 10 亿行但只有 2 行满足 `S.value > 100`，我们先把 10 亿行全部物化再过滤，浪费极大。
+这种模型的问题在于：如果 S 有 10 亿行但只有 2 行满足 `S.value > 100`，我们先把 10 亿行全部物化再过滤，浪费极大。
 
 !!! tip "优化：算子融合（Operator Fusion）"
     将同一个 pipeline 中不需要阻断的算子内联合并。例如，Scan + Filter 可以合并为一次操作——扫描时就应用谓词，只把匹配的 tuple 放入输出缓冲区。可以用于 Projection、Filter、Limit（无 ORDER BY 时）等操作。
 
-??? success "物化模型优点"
-    - 减少了函数调用次数
-    - 对于只返回少量 tuple 的 OLTP 查询很高效
-
-??? danger "物化模型缺点"
-    - 对于 OLAP 分析查询（处理大量数据但中间结果也很大）会导致巨大的内存开销
-    - 不适合需要处理大量中间结果的场景
+| 优点 | 缺点 |
+|------|------|
+| 减少了函数调用次数 | 对于 OLAP 分析查询（处理大量数据但中间结果也很大）会导致巨大的内存开销 |
+| 对于只返回少量 tuple 的 OLTP 查询很高效 | 不适合需要处理大量中间结果的场景 |
 
 !!! info "使用系统"
     MonetDB（CWI 阿姆斯特丹，1990 年代）、Hyper（初期版本）、VectorWise、CrateDB、RavenDB。DuckDB 的前身 MonetDBLite 也使用此模型。Hyper 后来放弃了此模型转而使用代码生成。
@@ -141,15 +131,12 @@
     - **列式压缩**：如果一列中有大量相同值（如 `id = 1` 出现 1000 次），可以用常量向量表示
     - **DuckDB 的优化**：自动检测常量向量、运行长度编码、Delta 编码等
 
-??? success "向量化模型优点"
-    - 相比迭代器模型，函数调用开销摊薄到每个 batch
-    - 相比物化模型，内存占用可控
-    - 适合 OLAP 工作负载——这是 Snowflake、Databricks 等现代分析数据库的选择
-    - 启用 SIMD 加速
-
-??? danger "向量化模型缺点"
-    - 实现比迭代器模型复杂
-    - 对于只返回极少量 tuple 的 OLTP 查询，仍有额外的 batch 管理开销
+| 优点 | 缺点 |
+|------|------|
+| 相比迭代器模型，函数调用开销摊薄到每个 batch | 实现比迭代器模型复杂 |
+| 相比物化模型，内存占用可控 | 对于只返回极少量 tuple 的 OLTP 查询，仍有额外的 batch 管理开销 |
+| 适合 OLAP 工作负载——Snowflake、Databricks 等现代分析数据库的选择 | |
+| 启用 SIMD 加速 | |
 
 !!! info "使用系统"
     DuckDB、ClickHouse、Snowflake、Databricks、VectorWise 等。该模型自 2006-2007 年开始流行。
@@ -174,8 +161,8 @@
 2. **索引扫描（Index Scan）**：利用 B+ 树等索引结构直接定位到所需的 tuple，避免全表扫描。
 3. **多索引 / 位图扫描（Multi-Index / Bitmap Scan）**：对多个条件分别使用索引，然后取交集。
 
-!!! warning "索引扫描不总是优于顺序扫描"
-    如果查询需要访问表中大部分数据，索引扫描反而会因为随机 I/O 而更慢。此外，索引扫描本身也有遍历 B+ 树的开销。
+!!! tip "索引扫描 vs 顺序扫描"
+    索引扫描不总是优于顺序扫描。如果查询需要访问表中大部分数据，索引扫描反而会因为随机 I/O 而更慢。此外，索引扫描本身也有遍历 B+ 树的开销。
 
 ## 4 并行查询执行（Parallel Query Execution）
 
@@ -203,17 +190,14 @@
 - 拥有独立的地址空间
 - Worker 之间通过 IPC（进程间通信）或共享内存通信
 
-??? success "优点"
-    一个进程崩溃不会影响其他进程。
+**优点**：一个进程崩溃不会影响其他进程。
 
-??? danger "缺点"
-    进程创建开销大，通信成本高，依赖 OS 调度。
+**缺点**：进程创建开销大，通信成本高，依赖 OS 调度。
 
 !!! info "使用系统"
     PostgreSQL（postmaster / postgress）、Oracle、DB2（早期版本）。
 
-??? question "为什么老牌数据库使用进程而不是线程？"
-    因为这些系统起源于 1980-1990 年代，当时各 Unix 变体的线程库互不兼容——HP-UX、AIX、Solaris 各有不同实现。而 `fork()` 作为 POSIX 标准接口在所有系统上都可用，因此选择 Process per Worker 可以保证跨平台兼容性。
+这些老牌系统选择进程而非线程，是因为它们起源于 1980-1990 年代，当时各 Unix 变体的线程库互不兼容——HP-UX、AIX、Solaris 各有不同实现。而 `fork()` 作为 POSIX 标准接口在所有系统上都可用，因此选择 Process per Worker 可以保证跨平台兼容性。
 
 #### 4.2.2 每个Worker一个线程（Thread per Worker）
 
@@ -221,11 +205,9 @@
 - 所有线程共享同一个地址空间，通信成本极低
 - DBMS 可以自行管理线程调度
 
-??? success "优点"
-    通信快、调度灵活、创建开销小。
+**优点**：通信快、调度灵活、创建开销小。
 
-??? danger "缺点"
-    一个线程崩溃可能导致整个系统崩溃。
+**缺点**：一个线程崩溃可能导致整个系统崩溃。
 
 !!! info "使用系统"
     几乎所有过去 20 年新建的数据库系统（MySQL、MariaDB、SQL Server 等）。DB2 和 Oracle 后来也添加了线程支持。
@@ -238,7 +220,7 @@
 !!! info "使用系统"
     SQLite、Berkeley DB、RocksDB、DuckDB（也支持多线程）。Berkeley DB 是最早的嵌入式数据库之一（UC Berkeley，80 年代末 / 90 年代初），2016 年被 Oracle 收购。
 
-!!! warning "重要区分"
+!!! tip "重要区分"
     支持多个 Worker 不等于支持**查询内并行（Intra-Query Parallelism）**。例如 MySQL 虽然是多线程的，但一条查询只能由一个线程执行完（不支持查询内并行）。PostgreSQL 和 Redis 的 fork 版本也是如此。
 
 ### 4.3 查询间并行（Inter-Query Parallelism）
@@ -326,7 +308,7 @@
 
 ## 7 系统设计哲学
 
-!!! quote "Andy Pavlo 的核心观点"
+!!! tip "Andy Pavlo 的核心观点"
     **DBMS 总是比操作系统更适合做出执行决策。**
 
     操作系统看到的只是"盲目的"线程和进程，它不了解查询的语义、数据的分布、pipeline 的结构。而 DBMS 了解查询的完整上下文，可以做出更优的调度决策。因此高端系统（Oracle、SQL Server 等）甚至重写了操作系统的调度器，由数据库自己管理所有资源。
@@ -340,9 +322,7 @@
 **来源**: [Fall 2022 HW3 Q3(a)](https://15445.courses.cs.cmu.edu/fall2022/files/hw3-clean.pdf) [6 points]
 
 !!! question "Which processing model has on average the smallest working buffer per operator invocation? Ignore optimizations like projection pushdown. Select only one answer."
-
-??? info "中文翻译"
-    哪种处理模型在每次算子调用时的平均工作缓冲区最小？（忽略投影下推等优化）
+    中文翻译：哪种处理模型在每次算子调用时的平均工作缓冲区最小？（忽略投影下推等优化）
 
 === "选项"
     - [ ] A. Iterator
@@ -356,17 +336,14 @@
     >
     > — CMU 15-445/645 Fall 2022 HW3 Solutions
 
-    ??? info "中文解析"
-        迭代器模型每次只处理一个 tuple，因此需要的缓冲区最小。物化模型需要存储所有输出 tuple，向量化模型需要存储一批 tuple。
+    中文解析：迭代器模型每次只处理一个 tuple，因此需要的缓冲区最小。物化模型需要存储所有输出 tuple，向量化模型需要存储一批 tuple。
 
 ### 题目 2：Iterator Model Independence
 
 **来源**: [Fall 2022 HW3 Q3(b)](https://15445.courses.cs.cmu.edu/fall2022/files/hw3-clean.pdf) [6 points]
 
 !!! question "In the iterator processing model, the logic of an operator is independent of its children and parents. (i.e., the code does not case on what type of iterator the children or parents are)"
-
-??? info "中文翻译"
-    在迭代器处理模型中，算子的逻辑是否独立于其子算子和父算子的类型？（即代码不根据子算子或父算子的类型做分支）
+    中文翻译：在迭代器处理模型中，算子的逻辑是否独立于其子算子和父算子的类型？（即代码不根据子算子或父算子的类型做分支）
 
 === "选项"
     - [ ] A. True
@@ -379,17 +356,14 @@
     >
     > — CMU 15-445/645 Fall 2022 HW3 Solutions
 
-    ??? info "中文解析"
-        迭代器模型的核心优势之一就是算子之间的解耦。每个算子只需要实现 `Open/Next/Close` 接口，不需要知道调用方或被调用方的具体类型。
+    中文解析：迭代器模型的核心优势之一就是算子之间的解耦。每个算子只需要实现 `Open/Next/Close` 接口，不需要知道调用方或被调用方的具体类型。
 
 ### 题目 3：Vectorized Model & Multi-threading
 
 **来源**: [Fall 2022 HW3 Q3(c)](https://15445.courses.cs.cmu.edu/fall2022/files/hw3-clean.pdf) [6 points]
 
 !!! question "In the vectorized processing model, each operator that receives input from multiple children requires multi-threaded execution to generate the Next() output tuples from each child."
-
-??? info "中文翻译"
-    在向量化处理模型中，每个需要从多个子节点获取输入的算子是否需要多线程执行来生成 Next() 的输出 tuple？
+    中文翻译：在向量化处理模型中，每个需要从多个子节点获取输入的算子是否需要多线程执行来生成 Next() 的输出 tuple？
 
 === "选项"
     - [ ] A. True
@@ -402,17 +376,14 @@
     >
     > — CMU 15-445/645 Fall 2022 HW3 Solutions
 
-    ??? info "中文解析"
-        向量化模型中的多子节点算子（如 Join）不需要多线程来分别从子节点获取数据。它可以在单个线程中依次调用各个子节点的 `Next()`。
+    中文解析：向量化模型中的多子节点算子（如 Join）不需要多线程来分别从子节点获取数据。它可以在单个线程中依次调用各个子节点的 `Next()`。
 
 ### 题目 4：Iterator Model & Instruction Cache
 
 **来源**: [Fall 2022 HW3 Q3(d)](https://15445.courses.cs.cmu.edu/fall2022/files/hw3-clean.pdf) [6 points]
 
 !!! question "The iterator processing model often leads to good code locality (in the instruction cache sense)."
-
-??? info "中文翻译"
-    迭代器处理模型是否能带来良好的代码局部性（从指令缓存的角度）？
+    中文翻译：迭代器处理模型是否能带来良好的代码局部性（从指令缓存的角度）？
 
 === "选项"
     - [ ] A. True
@@ -425,17 +396,14 @@
     >
     > — CMU 15-445/645 Fall 2022 HW3 Solutions
 
-    ??? info "中文解析"
-        迭代器模型中，每次只处理一个 tuple 就在不同算子之间切换，导致 CPU 在不同代码段之间频繁跳转，指令缓存命中率低。
+    中文解析：迭代器模型中，每次只处理一个 tuple 就在不同算子之间切换，导致 CPU 在不同代码段之间频繁跳转，指令缓存命中率低。
 
 ### 题目 5：Index Scan vs. Sequential Scan
 
 **来源**: [Fall 2022 HW3 Q3(e)](https://15445.courses.cs.cmu.edu/fall2022/files/hw3-clean.pdf) [6 points]
 
 !!! question "An index scan is always better (fewer I/O operations, faster run-time) than a sequential scan, regardless of the processing model."
-
-??? info "中文翻译"
-    索引扫描是否总是比顺序扫描更好（更少 I/O、更快运行时间），无论使用什么处理模型？
+    中文翻译：索引扫描是否总是比顺序扫描更好（更少 I/O、更快运行时间），无论使用什么处理模型？
 
 === "选项"
     - [ ] A. True
@@ -448,14 +416,14 @@
     >
     > — CMU 15-445/645 Fall 2022 HW3 Solutions
 
-    ??? info "中文解析"
-        如果查询需要访问表中大部分数据，顺序扫描的顺序 I/O 可能比索引扫描的随机 I/O 更快。PostgreSQL 优化器在估计查询超过约 10% 的表行时会默认选择顺序扫描。
+    中文解析：如果查询需要访问表中大部分数据，顺序扫描的顺序 I/O 可能比索引扫描的随机 I/O 更快。PostgreSQL 优化器在估计查询超过约 10% 的表行时会默认选择顺序扫描。
 
 ### 题目 6：Pipeline Breaker Identification
 
 **来源**: 基于 Lecture #13 & #14 课程内容编写
 
 !!! question "For the following query plan, which operators are pipeline breakers?"
+    中文翻译：对于以下查询计划，哪些算子是 pipeline breaker？
 
     ```text
              Sort (ORDER BY R.value)
@@ -465,48 +433,39 @@
             Scan(R)      Scan(S)
     ```
 
-??? info "中文翻译"
-    对于以下查询计划，哪些算子是 pipeline breaker？
-
 ??? success "答案"
     **Sort** and the **Hash Join's Build Side** are both pipeline breakers.
 
     - Sort must see all inputs before determining the final order — it cannot produce output early.
     - Hash Join's Build Side (Scan(R) → build hash table) must complete the hash table before the Probe phase can begin.
 
-    ??? info "中文解析"
-        Sort 必须在看到所有输入后才能确定排序顺序，无法提前输出。Hash Join 的 Build Side 必须在哈希表完全构建后才能开始 Probe。
+    中文解析：Sort 必须在看到所有输入后才能确定排序顺序，无法提前输出。Hash Join 的 Build Side 必须在哈希表完全构建后才能开始 Probe。
 
 ### 题目 7：Exchange Operator
 
 **来源**: 基于 Lecture #14 课程内容编写
 
 !!! question "What is the primary function of the Exchange operator in parallel query execution?"
-
-??? info "中文翻译"
-    在并行查询执行中，Exchange 算子的主要功能是什么？
+    中文翻译：在并行查询执行中，Exchange 算子的主要功能是什么？
 
 ??? success "答案"
     The Exchange operator acts as a **synchronization barrier** in parallel execution. It collects outputs from all parallel workers and waits for all sub-tasks to complete before passing results to upper operators. This ensures operations like Hash Join don't start the Probe phase until all parallel partitions are complete, avoiding false negatives.
 
-    ??? info "中文解析"
-        Exchange 算子充当并行执行的同步屏障（Barrier）。它收集所有并行 Worker 的输出，等待所有子任务完成后才将结果传递给上层算子。
+    中文解析：Exchange 算子充当并行执行的同步屏障（Barrier）。它收集所有并行 Worker 的输出，等待所有子任务完成后才将结果传递给上层算子。
 
 ### 题目 8：Processing Model & Workload Matching
 
 **来源**: 基于 Lecture #13 课程内容编写
 
 !!! question "Match each scenario with the most suitable processing model:"
+    中文翻译：将以下场景与最适合的处理模型匹配：
+    1. OLTP 系统处理点查询
+    2. OLAP 系统对 TB 级数据做聚合分析
+    3. 嵌入式数据库在移动设备上处理小规模查询
 
     1. An OLTP system handling point queries (e.g., `SELECT * FROM users WHERE id = 42`)
     2. An OLAP system performing aggregation analysis on TB-scale data
     3. An embedded database processing small queries on a mobile device
-
-??? info "中文翻译"
-    将以下场景与最适合的处理模型匹配：
-    1. OLTP 系统处理点查询
-    2. OLAP 系统对 TB 级数据做聚合分析
-    3. 嵌入式数据库在移动设备上处理小规模查询
 
 ??? success "答案"
     1. **Iterator Model** or **Materialization Model** — OLTP point queries typically return few tuples; per-tuple processing is efficient, and materialization overhead is minimal for small outputs.
@@ -518,9 +477,7 @@
 **来源**: 基于 Lecture #14 课程内容编写
 
 !!! question "Which parallelism strategy replicates the same operator across multiple workers, with each worker processing a different subset of data?"
-
-??? info "中文翻译"
-    以下哪种并行策略是将同一个算子复制到多个 Worker，每个 Worker 处理不同的数据子集？
+    中文翻译：以下哪种并行策略是将同一个算子复制到多个 Worker，每个 Worker 处理不同的数据子集？
 
 === "选项"
     - [ ] A. Inter-Operator Parallelism
@@ -532,23 +489,19 @@
 
     This strategy (also called horizontal parallelism) partitions the data so that multiple instances of the same operator process their respective data partitions in parallel.
 
-    ??? info "中文解析"
-        算子内并行 / 水平并行。这种策略将数据分区，同一个算子的多个实例并行处理各自的数据分区。
+    中文解析：算子内并行 / 水平并行。这种策略将数据分区，同一个算子的多个实例并行处理各自的数据分区。
 
 ### 题目 10：Process Model History
 
 **来源**: 基于 Lecture #14 课程内容编写
 
 !!! question "Why do legacy database systems like PostgreSQL and Oracle use Process per Worker instead of Thread per Worker?"
-
-??? info "中文翻译"
-    为什么 PostgreSQL、Oracle 等老牌数据库使用 Process per Worker 而不是 Thread per Worker？
+    中文翻译：为什么 PostgreSQL、Oracle 等老牌数据库使用 Process per Worker 而不是 Thread per Worker？
 
 ??? success "答案"
     These systems originated in the 1980s–1990s, when thread libraries across Unix variants (HP-UX, AIX, Solaris) were mutually incompatible. The `fork()` system call, as a POSIX standard interface, was universally available across all platforms, making Process per Worker the portable choice. Modern systems (past 20 years) generally adopt Thread per Worker since POSIX threads (pthreads) have been standardized.
 
-    ??? info "中文解析"
-        因为这些系统起源于 1980-1990 年代，当时各 Unix 变体的线程库互不兼容。`fork()` 作为 POSIX 标准接口在所有系统上都可用，因此选择 Process per Worker 可以保证跨平台兼容性。
+    中文解析：因为这些系统起源于 1980-1990 年代，当时各 Unix 变体的线程库互不兼容。`fork()` 作为 POSIX 标准接口在所有系统上都可用，因此选择 Process per Worker 可以保证跨平台兼容性。
 
 ## 9 知识图谱总结
 
