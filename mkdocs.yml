@@ -44,3 +44,5 @@ nav:
   - 首页: index.md
   - CMU 15-445:
     - Query Execution: query_execution.md
+    - Database Logging: data_logging.md
+    - Recovery with ARIES: recovery_with_aries.md
