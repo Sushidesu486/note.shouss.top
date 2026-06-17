@@ -49,12 +49,35 @@
 
 ## 3 Shadow Paging
 
-Shadow Paging 采用 No-Steal + Force。系统维护两个 page table：
+Shadow Paging 是 No-Steal + Force 的一种实现方式。它不依赖 WAL 来恢复页面，而是通过 copy-on-write 同时维护两个数据库版本：
 
 - **Master Page Table**：只指向已提交版本。
 - **Shadow Page Table**：事务修改时通过 copy-on-write 复制页面，并把新版本挂到 shadow table。
 
-提交时，系统先把 shadow pages 刷盘，再原子地切换 master pointer。回滚时直接丢弃 shadow table。
+### 3.1 基本流程
+
+1. 事务开始时，shadow page table 复制 master page table 的映射关系；此时两者都指向同一批物理页。
+2. 当事务第一次修改某个页面时，DBMS 复制该页，修改复制后的页面，并让 shadow page table 指向新页。
+3. 读事务仍通过 master page table 读取旧的已提交版本；写事务只修改 shadow 版本。
+4. 事务提交时，DBMS 先把 shadow page table 和所有 shadow dirty pages 刷到磁盘。
+5. 最后原子地切换 master pointer，使其指向 shadow page table。切换完成后，shadow 版本成为新的 master 版本。
+6. 如果事务回滚，直接丢弃 shadow page table 和 shadow pages，master pointer 不变。
+
+!!! info "为什么恢复简单"
+    崩溃后只需要检查 master pointer。若提交时的原子切换已经完成，master 指向新版本；若没有完成，master 仍指向旧版本。因此不需要 REDO，也不需要对未提交事务执行 UNDO。
+
+### 3.2 树状 page table
+
+直接复制整张 page table 代价很高。实际实现通常把 page table 组织成树，根节点是固定位置上的一个小页面或根指针：
+
+- master root 指向当前已提交数据库版本。
+- shadow root 指向事务的临时版本。
+- 修改叶子页时，只复制从根到该叶子的路径和被修改的数据页，不需要复制整棵树。
+- 提交时的关键动作是把固定位置的 root 原子更新为 shadow root。
+
+这种设计的本质是把“事务是否提交”压缩成一次 root 切换：root 切换前，所有 shadow 更新都不是数据库的正式状态；root 切换后，这些更新整体生效。
+
+### 3.3 成本与局限
 
 | 优点 | 缺点 |
 |------|------|
@@ -62,6 +85,8 @@ Shadow Paging 采用 No-Steal + Force。系统维护两个 page table：
 | 不需要复杂日志 | 提交时必须刷出所有修改 |
 | 崩溃后只需看 master pointer | 会造成磁盘碎片，不利于顺序扫描 |
 | 适合单写者场景 | 多事务并发提交难处理 |
+
+Shadow Paging 的提交开销集中在两件事上：刷出被修改的新页面，以及刷出 page table 或 root 相关页面。由于新页面往往分布在磁盘不同位置，它会破坏原本连续的数据布局，导致顺序扫描退化。旧版本页面还需要后续垃圾回收，否则空间会持续膨胀。
 
 SQLite 早期的 rollback journal 与该思路相近：修改页面前先把原始页面写入 journal，崩溃后用 journal 把未完成事务的页面拷贝回去。
 
@@ -107,13 +132,73 @@ WAL 有两条关键规则：
 
 WAL 不能无限增长，否则崩溃后可能要重放多年日志。**Checkpoint** 的作用是缩短恢复起点：
 
-1. 暂停或协调事务。
-2. 把 log buffer 刷到磁盘。
-3. 把 dirty pages 刷到磁盘。
-4. 在 WAL 中写入 checkpoint record。
-5. 恢复时从最近 checkpoint 附近开始分析。
+### 6.1 为什么需要 Checkpoint
 
-最简单的 consistent checkpoint 会暂停所有事务，恢复逻辑简单但运行时影响大。Checkpoint 太频繁会拖慢正常请求；太少则会延长崩溃恢复时间。下一讲的 fuzzy checkpoint 通过记录 Active Transaction Table 和 Dirty Page Table，避免长时间 stop-the-world。
+如果没有 checkpoint，恢复时必须从日志开头扫描到崩溃点：
+
+- 找出哪些事务已经提交，哪些事务没有完成。
+- REDO 已提交但可能尚未落盘的修改。
+- UNDO 未提交但可能已经落盘的修改。
+
+长期运行的系统会产生大量 WAL。即使很多老事务的修改早已刷到数据页，恢复仍要重复扫描这些无用历史，恢复时间不可控。Checkpoint 的目标就是把“确定已经安全的历史”变成恢复时可以跳过的边界。
+
+### 6.2 Consistent Checkpoint
+
+最直接的方案是 consistent checkpoint，也就是阻塞式检查点：
+
+1. 阻止新事务开始。
+2. 等待当前活跃事务结束，或暂停所有事务更新。
+3. 将 log buffer 刷入稳定存储。
+4. 将 buffer pool 中所有 dirty pages 刷到磁盘。
+5. 写入 checkpoint record，其中记录 checkpoint 时仍活跃的事务集合。
+6. 允许事务继续执行。
+
+如果某个事务在 checkpoint 之前已经提交或中止，并且它的脏页也已经在 checkpoint 中落盘，那么恢复时不需要再处理它。恢复只需要关注：
+
+- checkpoint record 中仍活跃的事务。
+- checkpoint 之后才开始的事务。
+
+对于这些事务：
+
+- 如果日志中没有 `COMMIT` 或 `ABORT`，崩溃恢复时需要 UNDO。
+- 如果日志中有 `COMMIT` 或 `ABORT`，恢复时需要按日志 REDO，保证历史状态完整。
+
+!!! example "日志截断边界"
+    如果 checkpoint 记录中有活跃事务集合 `L`，那么早于 `L` 中最早事务 `BEGIN` 的历史日志通常不再参与恢复。系统可以在确认没有备份、复制或审计需求后回收这部分日志空间。
+
+Consistent checkpoint 的问题是停顿时间不可控。只要有长事务未结束，checkpoint 就必须等待；如果系统强行暂停事务，在线请求会被阻塞。
+
+### 6.3 Fuzzy Checkpoint
+
+Fuzzy checkpoint 的目标是减少 stop-the-world 时间。它允许 checkpoint 进行时事务继续运行，但必须额外记录系统状态：
+
+| 结构 | 记录内容 | 用途 |
+|------|----------|------|
+| Active Transaction Table (ATT) | 活跃事务、状态、最近日志位置 | 恢复时判断哪些事务需要提交完成或回滚 |
+| Dirty Page Table (DPT) | 尚未落盘的脏页及其 `recLSN` | 恢复时确定 REDO 的最早起点 |
+
+典型流程：
+
+1. 写入 `BEGIN_CHECKPOINT`。
+2. 快速复制当前 ATT 和 DPT 的快照。
+3. 后台继续刷出 dirty pages；普通事务可以继续产生新日志和新脏页。
+4. 写入 `END_CHECKPOINT`，其中包含 ATT/DPT 快照。
+5. `END_CHECKPOINT` 安全落盘后，更新 master record，让它指向这次 checkpoint 的起点。
+
+Fuzzy checkpoint 不保证磁盘上的数据页在 checkpoint 结束时形成一个完全一致的快照，因为 checkpoint 期间事务仍可能修改页面。因此恢复不能简单地从 checkpoint 后开始重放，而要利用 DPT 的 `recLSN` 找到可能最早未落盘的修改，再从那里开始 REDO。
+
+!!! warning "WAL 约束仍然存在"
+    即使是 fuzzy checkpoint，刷出某个 dirty page 之前，也必须先保证导致该页变脏的相关日志已经落盘。否则崩溃后无法判断该页上的修改应该保留还是撤销。
+
+### 6.4 Checkpoint 频率
+
+Checkpoint 是运行时开销和恢复时间之间的权衡：
+
+- 太频繁：后台刷页和日志写入压力变大，正常事务吞吐下降。
+- 太稀疏：WAL 变长，崩溃后需要扫描和重放更多日志。
+- 长事务越多：日志截断越困难，因为必须保留能撤销这些事务的历史。
+
+因此系统通常会结合日志大小、dirty page 数量、目标恢复时间和当前负载来决定 checkpoint 时机，而不是只依赖固定时间间隔。
 
 ## 7 WAL 的额外用途
 
@@ -122,3 +207,7 @@ WAL 不只用于恢复，也常用于 **Change Data Capture (CDC)** 和复制。
 ## 8 小结
 
 WAL + Steal + No-Force 是现代数据库的主流选择：运行时可以灵活回收 buffer pool 页面，提交时只需顺序刷日志；代价是崩溃后必须同时支持 REDO 和 UNDO。Checkpoint 则用于限制恢复要扫描的日志范围。
+
+## 参考资料
+
+- [NoughtQ：Lec 15: Recovery System](https://note.noughtq.top/sys/db/15)
