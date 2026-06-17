@@ -9,3 +9,7 @@
 - [Query Execution](query_execution.md)
 - [Database Logging](data_logging.md)
 - [Recovery with ARIES](recovery_with_aries.md)
+
+### ZJU
+
+- [马克思主义基本原理期末考试事项](marxism_final_exam.md)
