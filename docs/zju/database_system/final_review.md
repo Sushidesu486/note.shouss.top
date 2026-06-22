@@ -189,6 +189,6 @@
 
 ## 6 相关站内笔记
 
-- [Query Execution](query_execution.md)
-- [Database Logging](data_logging.md)
-- [Recovery with ARIES](recovery_with_aries.md)
+- [Query Execution](../../cmu_15_445/query_execution.md)
+- [Database Logging](../../cmu_15_445/data_logging.md)
+- [Recovery with ARIES](../../cmu_15_445/recovery_with_aries.md)

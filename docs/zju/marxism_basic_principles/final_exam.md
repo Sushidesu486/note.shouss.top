@@ -7,7 +7,7 @@
 
 ## 复习资料
 
-- [查看思维导图 PDF](assets/marxism_mindmap.pdf){ target="_blank" }
+- [查看思维导图 PDF](assets/mindmap.pdf){ target="_blank" }
 
 ## 1 考试形式
 
