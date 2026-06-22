@@ -14,3 +14,4 @@
 
 - [马克思主义基本原理期末考试事项](marxism_final_exam.md)
 - [经济法期末考试事项](economic_law_final_exam.md)
+- [数据库系统期末总复习](dbs_final_review.md)
