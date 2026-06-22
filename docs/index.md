@@ -13,3 +13,4 @@
 ### ZJU
 
 - [马克思主义基本原理期末考试事项](marxism_final_exam.md)
+- [经济法期末考试事项](economic_law_final_exam.md)
