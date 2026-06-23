@@ -30,7 +30,38 @@
 4. 对比同类方法：RAID level、文件组织、buffer 策略、selection 方法、join 方法、恢复策略等都适合考“场景 + 优缺点 + 代价”。
 5. 最后整理 A4：优先放公式、判定规则、SQL 模板和容易混淆的结论。
 
-## 3 章节复习清单
+## 3 历年题目考点分析
+
+资料来源：[2018final.pdf](2018final.pdf)。该文件名保留为原始文件名，但内部实际包含多套历年卷、回忆卷与参考答案。图形题中的 B+ 树、Buffer Tree 图需要回到 PDF 原图练习。
+
+### 3.1 PDF 内题目整理
+
+| 卷面 | 大题结构 | 重点信号 |
+|------|----------|----------|
+| 2017-2018 | SQL/关系代数、ER、函数依赖与 BCNF、XML、B+ 树、查询处理、并发控制、ARIES | 校园卡场景贯穿 SQL、XML、代价估计；ARIES 考 redo 起点、undo 终点、DPT 和 CLR。 |
+| 2018-2019 | Movie SQL、足球比赛 ER、BCNF、XML、B+ 树、BNLJ/INLJ、cascadeless 与 2PL、ARIES | “最高平均值”“所有用户评分都更高”这类聚合和全称查询是 SQL 高频模板。 |
+| 2019-2020 | 软件项目 SQL、视频网站 ER、FD/BCNF、XML、B+ 树带 bucket、hash join、strict 2PL、fuzzy checkpoint | 查询处理开始强调 buffer 数、hash join 是否递归分区，以及 checkpoint 时间线。 |
+| 2020-2021 | SRTP SQL 建表、ER specialization、FD/BCNF、XML、B+ 树与 primary index、hash join、2PL lock conversion、logical undo | 建表约束、继承/分类实体、recoverable 条件和 logical undo 需要会解释。 |
+| 2022-2023 及整理卷 | 选择题/判断题、SQL、数据库设计、并发控制、ARIES、Buffer Tree、LSM Tree | 题型更碎，覆盖存储、索引、外部排序、hash join、死锁、Buffer Tree 与 LSM Tree。 |
+
+### 3.2 高频考点与复习优先级
+
+1. **SQL 与关系代数**：每套卷都考，重点是自连接、`GROUP BY/HAVING`、`>= all`、`not exists`、`distinct`、外键级联、`check` 约束和建表语句。看到“最多/最高”优先想到聚合子查询，看到“所有/每个”优先想到全称查询或反例消除。
+2. **ER 与关系模式转换**：常见场景包括外卖、足球、视频平台、SRTP、旅游平台、会议系统。画图时先找实体，再找联系的基数、联系属性、多值属性、弱实体或 specialization，最后转换为 schema 并标主键、外键。
+3. **函数依赖与范式**：几乎固定考 candidate key、canonical cover、BCNF decomposition 和 dependency preserving。解题顺序是先算属性闭包，再化简依赖，最后按违反 BCNF 的依赖逐步分解。
+4. **索引与 B+ 树**：插入、删除、节点分裂/合并、树高估计、dense/sparse、primary/secondary、clustering/non-clustering、bucket 和 LRU 缓冲读块数都出现过。近年还加入 Buffer Tree、LSM Tree，要会说明“延迟写入、顺序 I/O、合并代价”。
+5. **查询处理代价**：稳定考 selectivity、block 数、B+ 树高度、index scan、block nested-loop join、indexed nested-loop join、hash join、external merge sort。答案通常要同时给 block transfers 和 seeks。
+6. **并发控制**：核心是 precedence graph 判 conflict serializable，再判断 2PL、strict 2PL、cascadeless、recoverable、deadlock。不要只写结论，要指出环或等待关系。
+7. **恢复系统**：ARIES 每年都很像，必须熟练 Analysis 重建 transaction table/DPT、Redo 从最小 `recLSN` 开始、Undo loser transactions、写 CLR。fuzzy checkpoint 和 logical undo 是旧卷中较难的变体。
+8. **XML/XPath/XQuery**：2017-2021 连续出现，近年回忆卷中权重下降。若今年 PPT 仍包含 XML，至少会写 DTD、`ID/IDREF(S)`、`id()` 路径跳转和简单 XQuery join。
+
+!!! tip "做历年题的顺序"
+    先独立完成 SQL、FD、B+ 树、查询代价、并发图和 ARIES 六类题，再对答案。ER/XML 可以按模板整理，但 ARIES 和代价估计一定要手算一遍，因为评分细则通常按中间步骤给分。
+
+!!! warning "复习取舍"
+    历年题说明恢复、并发、索引和查询处理非常稳定；Buffer Tree、LSM Tree、列存储、外部排序、稀疏/稠密索引等更像近年选择题考点，适合放进 A4 纸的“易混判断”区。
+
+## 4 章节复习清单
 
 ### SQL 与 Advanced SQL
 
@@ -155,7 +186,7 @@
   - 重点字段：LSN、prevLSN、recLSN、transaction table、dirty page table、CLR。
 - CLR 是 compensation log record，用于记录撤销操作，保证恢复过程中再次崩溃也能正确继续。
 
-## 4 A4 纸建议内容
+## 5 A4 纸建议内容
 
 - SQL：`SELECT` 执行顺序、`GROUP BY/HAVING`、建表约束、外键级联、授权语句。
 - ER：关系基数、全/部分参与、弱实体、ER 转关系模式规则。
@@ -166,7 +197,7 @@
 - Concurrency：ACID、调度性质、precedence graph、2PL、锁兼容、deadlock/starvation。
 - Recovery：WAL、UNDO/REDO、deferred/immediate、checkpoint、ARIES 三阶段和关键字段。
 
-## 5 时间线摘要
+## 6 时间线摘要
 
 | 时间段 | 内容 |
 |--------|------|
@@ -187,7 +218,7 @@
 | 130:16-137:50 | 助教串讲 Transaction 与 Concurrency |
 | 138:37-144:00 | 助教串讲 Recovery 与 ARIES |
 
-## 6 相关站内笔记
+## 7 相关站内笔记
 
 - [Query Execution](../../cmu_15_445/query_execution.md)
 - [Database Logging](../../cmu_15_445/data_logging.md)
