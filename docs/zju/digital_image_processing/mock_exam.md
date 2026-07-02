@@ -97,6 +97,53 @@ In RANSAC, `w = 0.75`, `n = 4`, and the required success probability is `p > 0.9
 
 3. With the development of AIGC, deepfake, and multimodal models, what new characteristics will future image information processing have? List at least three application directions and two potential risks.
 
+## Part V. Additional Review-Lecture Questions
+
+These questions are added from the penultimate review lecture, where the emphasis was on computable examples, algorithm steps, and the meaning of each symbol.
+
+1. In geometric transformation, why is inverse mapping usually preferred to forward mapping? What role does interpolation play after inverse mapping?
+
+2. Bilinear interpolation: suppose four neighboring pixels are
+
+    ```text
+    I(1,1) = 20   I(2,1) = 40
+    I(1,2) = 50   I(2,2) = 90
+    ```
+
+    Compute the interpolated value at `(1.25, 1.75)`.
+
+3. Laplacian filtering: given the patch
+
+    ```text
+    10 10 10
+    10 30 12
+    10 14 10
+    ```
+
+    use the mask
+
+    ```text
+     0 -1  0
+    -1  4 -1
+     0 -1  0
+    ```
+
+    Compute the Laplacian response at the center. If sharpening is defined as `g = f + Laplacian`, what is the sharpened center value?
+
+4. In Fourier-based image analysis, compare magnitude and phase. Which one usually preserves more structural information when reconstructing an image, and why?
+
+5. Harris corner detection: explain how the two eigenvalues of the second-moment matrix indicate a flat region, an edge, or a corner.
+
+6. What is the basic idea of Harris-Laplace? What problem of the original Harris detector does it try to solve?
+
+7. Explain why SURF can be faster than SIFT. Your answer should mention Hessian-based detection and integral images.
+
+8. CNN feature map calculation: an input image has size `32x32x3`. A convolution layer uses `16` filters, each of size `5x5`, with stride `1` and padding `2`. What is the output feature map size? How many trainable parameters does this layer have if each filter has one bias?
+
+9. Explain the `Q/K/V` mechanism in self-attention. Why is positional encoding needed?
+
+10. Describe the expression ratio image method. What assumption is required for the ratio transfer to be meaningful?
+
 ## Answer Key
 
 ### Part I. Fill in the Blanks
@@ -180,3 +227,45 @@ In RANSAC, `w = 0.75`, `n = 4`, and the required success probability is `p > 0.9
 2. Back-propagation starts with random weight initialization. During forward propagation, each layer output and the final prediction are computed. A loss function measures the difference between prediction and label. Gradients of the loss with respect to each weight are computed backward using the chain rule. Weights are updated by `w_new = w_old - eta * partial E / partial w`, where `eta` is the learning rate. The process repeats until the loss converges or the maximum number of training epochs is reached.
 
 3. Future image information processing will be more data-driven, end-to-end, multimodal, real-time, and integrated with recognition, understanding, generation, and editing. Applications include medical image diagnosis, autonomous driving perception, industrial inspection, remote sensing, AIGC image generation and restoration, and AR/VR/MR. Risks include deepfake misuse, privacy leakage, copyright disputes, model bias, and difficulty in content provenance verification.
+
+### Part V. Additional Review-Lecture Questions
+
+1. Inverse mapping maps each output pixel back to a source-image coordinate. It is preferred because every output pixel is visited exactly once, so it avoids holes that may appear in forward mapping. Interpolation then estimates the source intensity at a non-integer coordinate, using nearest neighbor, bilinear interpolation, or another method.
+
+2. Let `dx = 0.25` and `dy = 0.75`. Bilinear interpolation gives
+
+    ```text
+    I = (1-dx)(1-dy) * 20
+      + dx(1-dy) * 40
+      + (1-dx)dy * 50
+      + dx dy * 90
+      = 51.25
+    ```
+
+3. The Laplacian response is
+
+    ```text
+    4 * 30 - (10 + 12 + 10 + 14) = 74
+    ```
+
+    With `g = f + Laplacian`, the sharpened center value is `30 + 74 = 104`.
+
+4. Magnitude describes how much energy each frequency component has, while phase describes the spatial alignment of those components. Phase usually preserves more image structure because edge positions and object layout depend strongly on phase alignment.
+
+5. If both eigenvalues are small, the window is flat. If one eigenvalue is large and the other is small, the point is on an edge. If both eigenvalues are large, intensity changes strongly in both directions, so the point is a corner.
+
+6. Harris-Laplace first finds Harris corner candidates across multiple scales, then uses a Laplacian or LoG response to select a characteristic scale. It addresses the scale sensitivity of the original Harris detector.
+
+7. SURF uses a Hessian-based detector and approximates expensive filters with box filters. Integral images make rectangle-sum computation constant-time, so SURF can compute detector responses and Haar-wavelet-like features faster than the original SIFT pipeline.
+
+8. The output width and height are
+
+    ```text
+    (32 - 5 + 2 * 2) / 1 + 1 = 32
+    ```
+
+    Therefore, the output feature map size is `32x32x16`. Each filter has `5 * 5 * 3 = 75` weights plus one bias, so the layer has `(75 + 1) * 16 = 1216` trainable parameters.
+
+9. In self-attention, `Q` is the query vector, `K` is the key vector, and `V` is the value vector. The dot product between `Q` and `K` measures relevance; after softmax, the weights are used to combine the `V` vectors. Positional encoding is needed because self-attention alone is permutation-insensitive and does not know token or patch order.
+
+10. The expression ratio image method aligns a neutral face `A`, its expression version `A'`, and the target face `B`. It computes a ratio image such as `K = A' / A`, warps the target face into the same geometry, and transfers the expression by `B' = K * B_g`. The key assumption is a compatible illumination model, often described by a Lambertian-style assumption with comparable surface-normal changes after alignment.
