@@ -1,48 +1,51 @@
-# 图像信息处理模拟卷
+# Digital Image Processing Mock Exam
 
-> 按近几年 DIP 回忆卷风格整理，覆盖 [高频考点汇总](high_probability_topics.md) 中的 S/A 级内容。建议限时 120 分钟完成，答题时写清步骤、物理意义和公式变量含义。
+> This mock exam follows the style of recent DIP recall papers and covers the S/A-level topics in the [high-probability topic summary](high_probability_topics.md). Suggested time limit: 120 minutes. In answers, make the algorithm steps, physical meaning, and variable definitions explicit.
 
-## 一、填空题
+!!! note "Language note"
+    This mock exam is written in English for practice. The 2022-2023 recall paper says the real paper was bilingual and answers could be written in Chinese or English. I did not find a clear statement in the lecture transcripts that this year's paper will be English-only.
+
+## Part I. Fill in the Blanks
 
 1. `()` is the main form to present information. For human beings, most information is obtained through `()`.
 
-2. BMP 文件通常由 `()`、`()`、`()`、`()` 四部分组成。
+2. A BMP file usually consists of `()`, `()`, `()`, and `()`.
 
-3. BMP 图像每一行 image data 的字节数必须补齐到 `()` 的倍数。若一行数据为 `13 A1 17 19 18 15`，文件中应存储为 `()`。
+3. In BMP image data, the number of bytes in each row must be padded to a multiple of `()`. If one row contains `13 A1 17 19 18 15`, it should be stored as `()` in the file.
 
-4. RGB 颜色空间中，`(0,0,0)` 到 `(1,1,1)` 的对角线表示 `()`。
+4. In the RGB color space, the diagonal line from `(0,0,0)` to `(1,1,1)` represents `()`.
 
-5. HSV 中，`H` 表示 `()`，`S` 表示 `()`，`V` 表示 `()`。
+5. In HSV, `H` means `()`, `S` means `()`, and `V` means `()`.
 
-6. RANSAC 中，若每个点为 inlier 的概率为 `w`，每次拟合模型需要 `n` 个点，希望成功概率为 `p`，最少迭代次数满足 `()`。
+6. In RANSAC, assume the probability that one point is an inlier is `w`, each model requires `n` points, and the desired success probability is `p`. The minimum number of iterations satisfies `()`.
 
-## 二、简答题
+## Part II. Short Answer Questions
 
-1. 简述数码相机从光信号到数字图像的成像过程。
+1. Describe the process by which a digital camera converts optical signals into a digital image.
 
-2. 影响景深的因素有哪些？分别如何影响景深？
+2. What factors affect depth of field? Explain how each factor changes the depth of field.
 
-3. JPEG 压缩的基本思想是什么？为什么压缩高频信息后仍能保持较好的视觉质量？
+3. What is the basic idea of JPEG compression? Why can JPEG discard high-frequency information while maintaining acceptable visual quality?
 
-4. 说明 erosion、dilation、opening、closing 的物理意义，并说明 opening 常用于什么场景。
+4. Explain the physical meanings of erosion, dilation, opening, and closing. What is opening commonly used for?
 
-5. 如何获得一张质量较好的二值图像？请结合 Otsu 和局部自适应阈值说明。
+5. How can we obtain a high-quality binary image? Explain using Otsu thresholding and local adaptive thresholding.
 
-6. 为什么离散直方图均衡化后，结果通常不能做到真正均匀？
+6. Why does discrete histogram equalization usually fail to produce a perfectly uniform histogram?
 
-7. 简述双边滤波的基本思想，并说明它相比 Gaussian smoothing 的优势。
+7. Explain the basic idea of bilateral filtering. What is its advantage over Gaussian smoothing?
 
-8. 简述 SIFT 的主要步骤。SIFT 如何实现旋转不变性？
+8. Describe the main steps of SIFT. How does SIFT achieve rotation invariance?
 
-9. 简述图像拼接 pipeline，并说明 image blending 的作用。
+9. Describe the image stitching pipeline and explain the purpose of image blending.
 
-10. 在 CNN 中，pooling 是什么？有什么作用？
+10. What is pooling in CNNs? What are its main functions?
 
-## 三、计算题
+## Part III. Calculation Problems
 
-### 1. 形态学腐蚀
+### 1. Morphological Erosion
 
-给定二值图像 `X` 和结构元素 `S`，结构元素原点在中间：
+Given a binary image `X` and a structuring element `S`, where the origin of `S` is the middle element:
 
 ```text
 X =
@@ -58,21 +61,21 @@ S =
 1
 ```
 
-求 `X erode S`，边界按 0 处理。
+Compute `X erode S`. Treat pixels outside the image boundary as `0`.
 
-### 2. 离散直方图均衡化
+### 2. Discrete Histogram Equalization
 
-某 8 级灰度图像统计如下，总像素数为 3600。
+An 8-level grayscale image has the following histogram. The total number of pixels is `3600`.
 
 | `k` | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
 |-----|---|---|---|---|---|---|---|---|
 | `n_k` | 400 | 600 | 800 | 700 | 500 | 300 | 200 | 100 |
 
-完成离散直方图均衡化的主要步骤：计算 `P(r_k)`、累计分布 `s_k`，并给出量化后的灰度映射。
+Perform the main steps of discrete histogram equalization: compute `P(r_k)`, compute the cumulative distribution `s_k`, and give the quantized gray-level mapping.
 
-### 3. 中值滤波
+### 3. Median Filtering
 
-用 `3x3` 中值滤波处理中心像素，窗口为：
+Apply a `3x3` median filter to the center pixel of the following window:
 
 ```text
 12 14 15
@@ -80,56 +83,56 @@ S =
 14 15 13
 ```
 
-求输出值，并说明该滤波适合处理什么噪声。
+Find the output value and state what type of noise this filter is especially suitable for.
 
-### 4. RANSAC 迭代次数
+### 4. RANSAC Iterations
 
-RANSAC 中，`w = 0.75`，`n = 4`，要求成功概率 `p > 0.99`，至少需要迭代多少次？
+In RANSAC, `w = 0.75`, `n = 4`, and the required success probability is `p > 0.99`. What is the minimum number of iterations?
 
-## 四、综合题
+## Part IV. Comprehensive Questions
 
-1. 给定两张有重叠区域的图像，要求生成 panorama。请说明从特征点检测到最终融合的完整流程，并指出 RANSAC 在其中解决什么问题。
+1. Given two images with an overlapping region, explain the complete procedure for generating a panorama, from feature point detection to final blending. Also explain what problem RANSAC solves in this pipeline.
 
-2. 说明 Back-propagation 如何更新神经网络权重。要求写出 forward、loss、gradient、learning rate 和 weight update 的关系。
+2. Explain how back-propagation updates neural network weights. Your answer should include forward propagation, loss, gradient, learning rate, and weight update.
 
-3. 现在有 AIGC、deepfake 和多模态模型等技术。你认为未来图像信息处理会有哪些新特征？请至少写出三个应用方向和两个潜在风险。
+3. With the development of AIGC, deepfake, and multimodal models, what new characteristics will future image information processing have? List at least three application directions and two potential risks.
 
-## 参考答案要点
+## Answer Key
 
-### 一、填空题
+### Part I. Fill in the Blanks
 
-1. `Digital image` 或 `video stream`；`vision`。
-2. `file header`、`information header`、`palette / color table`、`bitmap data`。
-3. `4`；`13 A1 17 19 18 15 00 00`。
-4. 灰度轴，表示从黑到白的不同灰度。
-5. `hue`、`saturation`、`value`。
-6. `K >= log(1-p) / log(1-w^n)`。
+1. `Digital image` or `video stream`; `vision`.
+2. `file header`, `information header`, `palette / color table`, `bitmap data`.
+3. `4`; `13 A1 17 19 18 15 00 00`.
+4. The grayscale axis, representing intensities from black to white.
+5. `hue`, `saturation`, `value`.
+6. `K >= log(1-p) / log(1-w^n)`.
 
-### 二、简答题
+### Part II. Short Answer Questions
 
-1. 相机成像：光线经镜头和光圈进入，CCD/CMOS 感光并完成光电转换，模拟信号经过放大和 A/D 转换，DSP 做颜色、降噪、压缩等处理，最后编码存储为数字图像。
+1. Light enters through the lens and aperture. A CCD/CMOS sensor converts light into electrical signals. The analog signals are amplified and converted by A/D conversion. A DSP then performs operations such as color processing, denoising, compression, and encoding before the image is stored.
 
-2. 景深因素：光圈越大景深越浅，光圈越小景深越深；焦距越长景深越浅，焦距越短景深越深；拍摄距离越近景深越浅，距离越远景深越深。
+2. Aperture, focal length, and object distance are the main factors. A larger aperture gives a shallower depth of field; a smaller aperture gives a deeper depth of field. A longer focal length gives a shallower depth of field; a shorter focal length gives a deeper depth of field. A shorter shooting distance gives a shallower depth of field; a longer distance gives a deeper depth of field.
 
-3. JPEG 主要保留低频轮廓和颜色分布，压缩或丢弃高频纹理与噪声。人眼对低频结构更敏感，对高频细节损失相对不敏感，因此能在较高压缩比下保持可接受视觉质量。
+3. JPEG preserves low-frequency structure and color distribution while compressing or discarding high-frequency texture and noise. Human vision is more sensitive to low-frequency structures than to many high-frequency details, so acceptable visual quality can be preserved at a high compression ratio.
 
-4. Erosion 要求结构元素完全落在前景内，收缩前景、去小噪声；dilation 只要求与前景有交集，扩张前景、连接断裂；opening 是先腐蚀后膨胀，常用于去小突出和孤立噪声；closing 是先膨胀后腐蚀，常用于填小洞和裂缝。
+4. Erosion outputs foreground only when the structuring element is fully contained in the foreground; it shrinks foreground regions and removes small noise. Dilation outputs foreground when the structuring element intersects the foreground; it expands foreground regions and connects small gaps. Opening is erosion followed by dilation and is commonly used to remove small protrusions and isolated noise. Closing is dilation followed by erosion and is commonly used to fill small holes and cracks.
 
-5. 可先用 Otsu 自动选全局阈值，使前景和背景类间方差最大；若光照不均，再用局部自适应阈值，在滑动窗口内分别估计阈值。答题时要说明窗口大小和噪声会影响结果。
+5. Otsu thresholding selects a global threshold that maximizes the separation between foreground and background, usually by maximizing between-class variance. If illumination is uneven, local adaptive thresholding estimates a separate threshold in each local window. Window size and noise level should be considered.
 
-6. 离散灰度级数量有限，多个输入灰度可能映射到同一输出灰度，有些输出灰度可能没有像素，所以均衡化后的直方图只能近似均匀。
+6. Gray levels are discrete. Multiple input gray levels may map to the same output gray level, while some output gray levels may receive no pixels. Therefore, the result can only be approximately uniform.
 
-7. 双边滤波的权重同时考虑空间距离和灰度相似度，通常写作空间项 `S` 与灰度项 `R` 的乘积。相比 Gaussian smoothing，它能在平滑噪声的同时更好保留边缘。
+7. Bilateral filtering weights neighboring pixels using both spatial distance and intensity similarity, often written as a product of a spatial term `S` and a range/intensity term `R`. Compared with Gaussian smoothing, it can smooth noise while preserving edges better.
 
-8. SIFT 步骤：构建尺度空间并检测极值，关键点定位，分配 dominant orientation，生成局部梯度方向直方图描述子。旋转不变性来自将 patch 按主方向对齐。
+8. SIFT builds a scale space, detects extrema, localizes keypoints, assigns a dominant orientation, and builds a local gradient-orientation histogram descriptor. Rotation invariance comes from aligning the local patch according to the dominant orientation.
 
-9. 图像拼接流程：特征点检测，描述子计算，特征匹配，用 RANSAC 去除 outlier 并估计 homography，warping 到同一坐标系，最后 blending。Blending 用于减少重叠区域接缝、亮度突变和鬼影。
+9. Image stitching usually includes feature detection, descriptor extraction, feature matching, RANSAC outlier rejection and homography estimation, warping into a common coordinate system, and blending. Blending reduces seams, brightness discontinuities, and ghosting in overlapping regions.
 
-10. Pooling 是降采样操作，常见 max pooling 和 average pooling。作用是减少变量、扩大有效感受野、增强小位移鲁棒性，并降低后续计算量。
+10. Pooling is a downsampling operation, such as max pooling or average pooling. It reduces variables and computation, increases the effective receptive field, and improves robustness to small translations.
 
-### 三、计算题
+### Part III. Calculation Problems
 
-1. 腐蚀结果：
+1. Erosion result:
 
     ```text
     0 0 0 0 0
@@ -139,9 +142,9 @@ RANSAC 中，`w = 0.75`，`n = 4`，要求成功概率 `p > 0.99`，至少需要
     0 0 0 0 0
     ```
 
-    竖直三连通结构元素要求当前位置的上、中、下三格全为 1，边界按 0 处理。
+    The vertical three-pixel structuring element requires the upper, center, and lower pixels to all be `1`. Boundary pixels are treated as `0`.
 
-2. 直方图均衡化：
+2. Histogram equalization:
 
     | `k` | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
     |-----|---|---|---|---|---|---|---|---|
@@ -149,31 +152,31 @@ RANSAC 中，`w = 0.75`，`n = 4`，要求成功概率 `p > 0.99`，至少需要
     | `s_k` | 0.111 | 0.278 | 0.500 | 0.694 | 0.833 | 0.917 | 0.972 | 1.000 |
     | `round(7s_k)` | 1 | 2 | 4 | 5 | 6 | 6 | 7 | 7 |
 
-    因此灰度映射为 `0->1`，`1->2`，`2->4`，`3->5`，`4->6`，`5->6`，`6->7`，`7->7`。若题目采用 floor 或 ceiling 量化，结果可能略有差异，关键是写清量化规则。
+    Thus the mapping is `0->1`, `1->2`, `2->4`, `3->5`, `4->6`, `5->6`, `6->7`, and `7->7`. If a problem uses floor or ceiling instead of rounding, the mapping may differ slightly. The quantization rule must be stated.
 
-3. 将窗口值排序：
+3. Sorted values:
 
     ```text
     12, 13, 13, 14, 14, 15, 15, 16, 255
     ```
 
-    中值为 `14`。中值滤波适合处理椒盐噪声，对孤立异常值鲁棒。
+    The median is `14`. Median filtering is especially suitable for salt-and-pepper noise and is robust to isolated outliers.
 
-4. RANSAC：
+4. RANSAC:
 
     ```text
     w^n = 0.75^4 = 0.3164
     K >= log(1-0.99) / log(1-0.3164)
       = log(0.01) / log(0.6836)
-      ≈ 12.11
+      ~= 12.11
     ```
 
-    因此至少迭代 `13` 次。
+    Therefore, at least `13` iterations are required.
 
-### 四、综合题
+### Part IV. Comprehensive Questions
 
-1. Panorama：先检测局部特征，如 Harris、SIFT 或 SURF；计算 descriptor；做特征匹配；用 RANSAC 从匹配点中筛掉 outlier，并估计 homography；通过 inverse mapping 和 interpolation 将图像 warp 到统一坐标系；最后做 average blending、weighted blending 或 multi-band blending。RANSAC 的作用是在存在错误匹配时鲁棒估计几何变换。
+1. For panorama generation, detect local features such as Harris, SIFT, or SURF; compute descriptors; match descriptors across the two images; use RANSAC to remove outliers and estimate a homography; warp the images into a common coordinate system using inverse mapping and interpolation; then apply average blending, weighted blending, or multi-band blending. RANSAC robustly estimates the geometric transformation in the presence of false matches.
 
-2. Back-propagation：先随机初始化权重，forward 计算每层输出和最终预测；用 loss function 衡量预测和标签差异；从输出层向前用链式法则计算每个权重的梯度；再按 `w_new = w_old - eta * partial E / partial w` 更新权重，其中 `eta` 是 learning rate。重复迭代直到 loss 收敛或达到最大训练轮数。
+2. Back-propagation starts with random weight initialization. During forward propagation, each layer output and the final prediction are computed. A loss function measures the difference between prediction and label. Gradients of the loss with respect to each weight are computed backward using the chain rule. Weights are updated by `w_new = w_old - eta * partial E / partial w`, where `eta` is the learning rate. The process repeats until the loss converges or the maximum number of training epochs is reached.
 
-3. AI 时代图像信息处理会更数据驱动、端到端、多模态、实时化，并把识别、理解、生成和编辑结合起来。应用可写医学影像辅助诊断、自动驾驶感知、工业质检、遥感解译、AIGC 图像生成与修复、AR/VR/MR。风险可写 deepfake、隐私泄露、版权归属、模型偏见和内容可信溯源。
+3. Future image information processing will be more data-driven, end-to-end, multimodal, real-time, and integrated with recognition, understanding, generation, and editing. Applications include medical image diagnosis, autonomous driving perception, industrial inspection, remote sensing, AIGC image generation and restoration, and AR/VR/MR. Risks include deepfake misuse, privacy leakage, copyright disputes, model bias, and difficulty in content provenance verification.
