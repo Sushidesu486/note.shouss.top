@@ -25,8 +25,13 @@ theme:
 plugins:
   - search
   - mermaid2
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 markdown_extensions:
   - admonition
+  - pymdownx.arithmatex:
+      generic: true
   - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
@@ -46,6 +51,10 @@ nav:
     - Query Execution: cmu_15_445/query_execution.md
     - Database Logging: cmu_15_445/data_logging.md
     - Recovery with ARIES: cmu_15_445/recovery_with_aries.md
+  - 科研笔记:
+    - 视频生成:
+      - HunyuanVideo 模型结构与数学原理: research/video_generation/hunyuan_video.md
+      - 自回归视频扩散推理效率: research/video_generation/ar_video_diffusion_efficiency.md
   - ZJU:
     - 马克思主义基本原理:
       - 期末考试事项: zju/marxism_basic_principles/final_exam.md
