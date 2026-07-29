@@ -51,7 +51,7 @@ nav:
     - Query Execution: cmu_15_445/query_execution.md
     - Database Logging: cmu_15_445/data_logging.md
     - Recovery with ARIES: cmu_15_445/recovery_with_aries.md
-  - 科研笔记:
+  - Research:
     - 视频生成:
       - HunyuanVideo 模型结构与数学原理: research/video_generation/hunyuan_video.md
       - 自回归视频扩散推理效率: research/video_generation/ar_video_diffusion_efficiency.md
