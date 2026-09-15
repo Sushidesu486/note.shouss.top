@@ -472,6 +472,11 @@ $$
 - FAST-AR：[arXiv v2 摘要][fast-abs]、[PDF][fast-pdf]、[TeX source][fast-src]、[作者项目页][fast-project]。
 - 版本核对日期：2026-07-24。笔记中的实验数字均按上述 arXiv 版本的正文或补充材料记录。
 
+## 延伸阅读与视频
+
+- 先读[Diffusion Forcing](paper_reading.md#diffusion-forcing)与[Self Forcing](paper_reading.md#self-forcing)导读，区分噪声安排与训练历史来源。
+- 配套观看[Boyuan Chen 的 Diffusion Forcing 作者报告](video_courses.md#diffusion-forcing)，再回本页讨论 cache 与端到端效率。
+
 [df-abs]: https://arxiv.org/abs/2601.20499v1
 [df-pdf]: https://arxiv.org/pdf/2601.20499v1
 [df-src]: https://arxiv.org/src/2601.20499v1
