@@ -1,0 +1,8 @@
+MiniMax H3 is licensed under the MiniMax H3 Community License Agreement, Copyright © 2026 MiniMax. All Rights Reserved.
+
+h3_overview.png and h3_architecture.png are unmodified official documentation images.
+Source commit: d21241f0a4b3acbb34c97dae47fa417b7065e438
+Source repository: https://github.com/MiniMax-AI/MiniMax-H3
+Original paths: assets/overview.png and assets/full-arch.png
+Retrieved: 2026-09-10
+License copy: h3_license.txt

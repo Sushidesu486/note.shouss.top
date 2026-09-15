@@ -1,0 +1,226 @@
+[
+  {
+    "file": "ddpm_fig2.png",
+    "source": "https://arxiv.org/pdf/2006.11239v2",
+    "pdf_page": 2,
+    "figure": "fig2",
+    "crop_points": [
+      105,
+      52,
+      506,
+      122
+    ],
+    "scale": 3,
+    "source_sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "ddpm_algorithms.png",
+    "source": "https://arxiv.org/pdf/2006.11239v2",
+    "pdf_page": 4,
+    "figure": "algorithms",
+    "crop_points": [
+      105,
+      82,
+      506,
+      178
+    ],
+    "scale": 3,
+    "source_sha256": "aee5e07a802e8dfd2a386374c94fd61d1d056cb7e1e0fec4f28e8120ff5d8505",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "transformer_fig1.png",
+    "source": "https://arxiv.org/pdf/1706.03762v7",
+    "pdf_page": 3,
+    "figure": "fig1",
+    "crop_points": [
+      185,
+      47,
+      430,
+      402
+    ],
+    "scale": 3,
+    "source_sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "transformer_fig2.png",
+    "source": "https://arxiv.org/pdf/1706.03762v7",
+    "pdf_page": 4,
+    "figure": "fig2",
+    "crop_points": [
+      125,
+      45,
+      500,
+      273
+    ],
+    "scale": 3,
+    "source_sha256": "bdfaa68d8984f0dc02beaca527b76f207d99b666d31d1da728ee0728182df697",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "ldm_fig3.png",
+    "source": "https://arxiv.org/pdf/2112.10752v2",
+    "pdf_page": 4,
+    "figure": "fig3",
+    "crop_points": [
+      303,
+      47,
+      550,
+      197
+    ],
+    "scale": 3,
+    "source_sha256": "46ede043a8dc07ca1f0f445620523fe1ad8b2436bd83856a3835612a47e9f79e",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "dit_fig3.png",
+    "source": "https://arxiv.org/pdf/2212.09748v2",
+    "pdf_page": 3,
+    "figure": "fig3",
+    "crop_points": [
+      45,
+      47,
+      563,
+      279
+    ],
+    "scale": 3,
+    "source_sha256": "5fbb0ec35e3ae76826240171ca63ed4c27de6cb43180367453019e9d28a8b076",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "hunyuan_fig5.png",
+    "source": "https://arxiv.org/pdf/2412.03603v1",
+    "pdf_page": 5,
+    "figure": "fig5",
+    "crop_points": [
+      105,
+      66,
+      509,
+      242
+    ],
+    "scale": 3,
+    "source_sha256": "c5aea4522a926775eec39db8bdb4a9ced63a1c0a703fb7254e7b9fdc1dbe7f98",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "hunyuan_fig6.png",
+    "source": "https://arxiv.org/pdf/2412.03603v1",
+    "pdf_page": 6,
+    "figure": "fig6",
+    "crop_points": [
+      105,
+      69,
+      509,
+      151
+    ],
+    "scale": 3,
+    "source_sha256": "c5aea4522a926775eec39db8bdb4a9ced63a1c0a703fb7254e7b9fdc1dbe7f98",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "hunyuan_fig8.png",
+    "source": "https://arxiv.org/pdf/2412.03603v1",
+    "pdf_page": 7,
+    "figure": "fig8",
+    "crop_points": [
+      105,
+      306,
+      509,
+      516
+    ],
+    "scale": 3,
+    "source_sha256": "c5aea4522a926775eec39db8bdb4a9ced63a1c0a703fb7254e7b9fdc1dbe7f98",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "hunyuan_fig9.png",
+    "source": "https://arxiv.org/pdf/2412.03603v1",
+    "pdf_page": 9,
+    "figure": "fig9",
+    "crop_points": [
+      105,
+      70,
+      509,
+      217
+    ],
+    "scale": 3,
+    "source_sha256": "c5aea4522a926775eec39db8bdb4a9ced63a1c0a703fb7254e7b9fdc1dbe7f98",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "wan_fig5.png",
+    "source": "https://arxiv.org/pdf/2503.20314v1",
+    "pdf_page": 10,
+    "figure": "fig5",
+    "crop_points": [
+      100,
+      319,
+      514,
+      426
+    ],
+    "scale": 3,
+    "source_sha256": "a144f86e8a921aa4d8b9c720d77eff2fef31bc4f1e6d7754a5095e53d99a1989",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "wan_fig6.png",
+    "source": "https://arxiv.org/pdf/2503.20314v1",
+    "pdf_page": 11,
+    "figure": "fig6",
+    "crop_points": [
+      100,
+      79,
+      514,
+      194
+    ],
+    "scale": 3,
+    "source_sha256": "a144f86e8a921aa4d8b9c720d77eff2fef31bc4f1e6d7754a5095e53d99a1989",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "wan_fig9.png",
+    "source": "https://arxiv.org/pdf/2503.20314v1",
+    "pdf_page": 13,
+    "figure": "fig9",
+    "crop_points": [
+      100,
+      390,
+      514,
+      524
+    ],
+    "scale": 3,
+    "source_sha256": "a144f86e8a921aa4d8b9c720d77eff2fef31bc4f1e6d7754a5095e53d99a1989",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  },
+  {
+    "file": "wan_fig10.png",
+    "source": "https://arxiv.org/pdf/2503.20314v1",
+    "pdf_page": 14,
+    "figure": "fig10",
+    "crop_points": [
+      345,
+      142,
+      514,
+      334
+    ],
+    "scale": 3,
+    "source_sha256": "a144f86e8a921aa4d8b9c720d77eff2fef31bc4f1e6d7754a5095e53d99a1989",
+    "retrieved": "2026-09-10",
+    "kind": "paper_screenshot"
+  }
+]

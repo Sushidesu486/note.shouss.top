@@ -1,17 +1,26 @@
+---
+hide:
+  - navigation
+  - toc
+  - footer
+---
+
 # Shouss's Notes
 
-个人学习笔记站点。
+课程学习与研究笔记。
 
-## 课程笔记
+<div class="notebook-directory" markdown="block">
 
-### CMU 15-445/645 Database Systems
+- [**视频生成**](research/video_generation/index.md)
 
-- [Query Execution](cmu_15_445/query_execution.md)
-- [Database Logging](cmu_15_445/data_logging.md)
-- [Recovery with ARIES](cmu_15_445/recovery_with_aries.md)
+    Diffusion、Transformer 与 VAE 的基础，视频生成模型的论文与实现。
 
-### ZJU
+- [**CMU 15-445 · 数据库系统**](cmu_15_445/index.md)
 
-- [马克思主义基本原理期末考试事项](zju/marxism_basic_principles/final_exam.md)
-- [经济法期末考试事项](zju/economic_law/final_exam.md)
-- [数据库系统期末总复习](zju/database_system/final_review.md)
+    Query Execution、Database Logging 与 ARIES Recovery。
+
+- [**ZJU · 课程笔记**](zju/index.md)
+
+    数据库系统、图像信息处理、经济法与马克思主义基本原理。
+
+</div>
