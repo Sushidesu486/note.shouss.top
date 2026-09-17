@@ -39,6 +39,48 @@ CI 使用 Python 3.12；构建依赖及中文分词依赖统一在 `requirements
 
 公开的辅助页面若有意不进入菜单，使用 MkDocs 的 `not_in_nav` 显式列出；不发布的草稿使用 `draft_docs`，不要仅从导航移除。
 
+## 写作语法
+
+正文使用 Markdown，扩展配置见 `mkdocs.yml` 的 `markdown_extensions`。常用写法：
+
+| 效果 | 写法 | 备注 |
+| --- | --- | --- |
+| 加粗 | `**text**` 或 `<strong>text</strong>` | |
+| 斜体 | `*text*` 或 `<em>text</em>` | |
+| 下划线 | `<u>text</u>` 或 `<ins>text</ins>` | `++text++` 未启用 |
+| 删除线 | `<s>text</s>` 或 `<del>text</del>` | `~~text~~` 未启用 |
+| 高亮 | `<mark>text</mark>` | `==text==` 未启用 |
+| 上下标 | `x<sup>2</sup>`、`x<sub>i</sub>` | `^2^`、`~i~` 未启用 |
+| 键盘按键 | `<kbd>Ctrl</kbd>` | |
+| 行内代码 | `` `code` `` | |
+| 数学公式 | 行内 `$...$`，独立公式 `$$...$$` | arithmatex + MathJax |
+| 提示块 | `!!! tip "标题"`，内容缩进四格 | 可折叠用 `??? tip "标题"` |
+| 选项卡 | `=== "Tab 名"`，内容缩进四格 | |
+| 脚注 | 正文 `[^1]`，另起 `[^1]: 说明` | |
+| Mermaid 图 | ` ```mermaid ` 围栏 | |
+
+下划线、删除线、高亮等没有对应的 Markdown 内建语法，`pymdownx.caret`、`pymdownx.tilde`、`pymdownx.mark` 未启用，因此统一使用原生 HTML 标签（Material 主题自带这些标签的样式）。注意 `<bf>`、`<rm>` 不是有效 HTML 标签，浏览器会忽略并渲染为普通文本，不要使用；Markdown 正文本身就是正体（roman），无需专门标记。
+
+### 插入图片
+
+- 图片放在 `docs/assets/`（全站共享，如 `docs/assets/video_generation/`）或课程目录自己的 `assets/`（如 `docs/zju/theory_of_computation/assets/`），课件、教材 PDF 等附件同理。站内引用一律用相对当前 `.md` 文件的路径。
+- 普通插图用 Markdown 语法；需要控制尺寸或对齐时附加属性（`attr_list` 已启用）：
+
+  ```markdown
+  ![示意图](../assets/foo.png){ width="360" }
+  ```
+
+- 论文截图、需要图注和点击放大的插图，统一使用 `paper-figure` 结构（点击弹窗由 `docs/javascripts/reading.js` 实现，仅对该结构生效）：
+
+  ```markdown
+  <figure class="paper-figure" markdown>
+  [![图示内容简述](../../assets/video_generation/fig1.png)](../../assets/video_generation/fig1.png)
+  <figcaption markdown="span">图注：出处、页码与原文链接。</figcaption>
+  </figure>
+  ```
+
+  `<figure>` 里的图片写成 `[![替代文字](图片路径)](图片路径)`（图片本身链接到原图），`<figcaption>` 内可再嵌 Markdown 链接；竖版图在 `class` 上追加 `portrait`，限制最大宽度 360px。
+
 ## 检查与发布
 
 ```bash

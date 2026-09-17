@@ -111,3 +111,12 @@ nav:
       - 总览: zju/theory_of_computation/index.md
       - 课程引论: zju/theory_of_computation/intro.md
       - Ch1 · Set, Relation, and Language: zju/theory_of_computation/set-relation-language.md
+    - 汇编与接口:
+      - 总览: zju/assembly_language_and_microcomputer_interface/index.md
+      - 导论: zju/assembly_language_and_microcomputer_interface/intro.md
+      - Ch1 · Introduction to the Microprocessor and Computer: zju/assembly_language_and_microcomputer_interface/char1.md
+    - 操作系统:
+      - 总览: zju/operation_system/index.md
+      - Ch1 · Introduction: zju/operation_system/char1.md
+    - 计算机网络:
+      - 总览: zju/computer_internet/index.md
