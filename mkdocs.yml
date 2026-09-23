@@ -29,7 +29,11 @@ theme:
     - search.suggest
     - search.highlight
 plugins:
-  - search
+  - search:
+      # 搜索框会给查询词追加 * 通配符，而 lunr 的通配符词项不经过词干化管道；
+      # 若索引侧保留 stemmer（中文主题默认），ARIES 这类词将永远搜不到。
+      # 置空 pipeline 让索引保留 jieba 分词的原始 token，通配符前缀匹配两侧一致。
+      pipeline: []
   - mermaid2:
       version: 10.4.0
 extra_javascript:

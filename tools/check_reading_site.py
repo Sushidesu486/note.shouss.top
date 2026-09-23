@@ -106,13 +106,17 @@ def check_site(args, report):
         for term, expected in [("数据库", "/zju/database_system/"),
                                ("ARIES", "/cmu_15_445/recovery_with_aries/"),
                                ("VAE 视频", "/research/video_generation/video_vae/")]:
-            page.get_by_role("textbox", name="搜索", exact=True).fill("")
-            page.get_by_role("textbox", name="搜索", exact=True).press("ArrowLeft")
+            search = page.get_by_role("textbox", name="搜索", exact=True)
+            # Reopen the overlay explicitly after Escape; fill alone can leave
+            # the result list hidden while the input still retains focus.
+            search.click()
+            search.fill("")
+            search.press("ArrowLeft")
             expect(page.locator(".md-search-result__meta")).to_have_text("键入以开始搜索")
-            page.get_by_role("textbox", name="搜索", exact=True).fill(term)
-            page.get_by_role("textbox", name="搜索", exact=True).press("ArrowLeft")
+            search.fill(term)
+            search.press("ArrowLeft")
             page.locator(f'.md-search-result a[href*="{expected}"]').first.wait_for(state="visible")
-            page.get_by_role("textbox", name="搜索", exact=True).press("Escape")
+            search.press("Escape")
         report["interactions"]["search"] = "passed"
 
         page.set_viewport_size({"width": 390, "height": 844})

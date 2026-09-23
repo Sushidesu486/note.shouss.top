@@ -25,7 +25,7 @@
 
 <figure class="paper-figure" markdown>
 [![课件 · 集合运算的 Venn 图（并/交/补/差/对称差）](assets/slides_0915/ch1_set_operations.png)](assets/slides_0915/ch1_set_operations.png)
-<figcaption markdown="span">课件截图 · 1.1 Sets，五种集合运算的 Venn 图。</figcaption>
+<figcaption markdown="span">课件截图 · [1.1 Sets，五种集合运算的 Venn 图](assets/slides_0915/ch1_set_operations.png)。</figcaption>
 </figure>
 
 - 集合的性质
@@ -65,16 +65,20 @@
     - range（值域）：the set of **output values** of the relation——是**箭头指向的那些元素**，不是 $B$ 全集（易错点！）
 
 - Ordered Tuples and n-ary Relations
-    - ordered tuple（有序 $n$ 元组）：$(a_1, a_2, \ldots, a_n)$，有序，且 $(a_1,\ldots,a_n) = (b_1,\ldots,b_n) \iff a_i = b_i,\ \forall i$
+    - ordered tuple（有序 $n$ 元组）：$(a_1, a_2, \ldots, a_n)$，有序不可调换；两个同长度元组相等 $\iff$ 各分量对应相等（$\forall i,\ a_i = b_i$）
     - sequence（序列）：有序的元素排列，允许重复元素，可以是无限长；与 tuple（有限）相对
-    - n-folds Cartesian product（$n$ 重笛卡尔积）：$A_1 \times A_2 \times \cdots \times A_n = \{(a_1,\ldots,a_n) \mid a_i \in A_i\}$；当 $A_i = A$ 时记作 $A^n$
+    - n-folds Cartesian product（$n$ 重笛卡尔积）：$A_1 \times \cdots \times A_n$，由每个 $A_i$ 各取一个元素组成的 $n$ 元组全体（$a_i \in A_i$）；当 $A_i = A$ 时记作 $A^n$
     - n-ary relation（$n$ 元关系）：$R \subseteq A_1 \times \cdots \times A_n$；$n=2$ 时即上面讲到的 binary relation
 
 - Operations of Relations
     - inverse（逆关系）：$R^{-1} = \{(b,a) \mid (a,b) \in R\}$——类比反函数，定义域与值域互换
 
     - Composition（复合）：若 $R \subseteq A \times B,\ S \subseteq B \times C$，则
-      $$S \circ R = \{(a,c) \mid \exists b \in B,\ (a,b) \in R \land (b,c) \in S\}$$
+
+        $$
+        S \circ R = \{(a,c) \mid \exists b \in B,\ (a,b) \in R \land (b,c) \in S\}
+        $$
+
         - **注意是 $\exists$（存在）而不是 $\forall$**：只要存在一个 $b$ 能把 $a$ 连到 $c$ 即可
         - 技巧：把 $A, B, C$ 画成三列点、按关系连线，看起点到终点有没有路径——比逐项枚举快得多
         - 误区：$R \circ R^{-1}$ **不是**恒等关系（对角阵）——例如 $aR4$、$4R6$，则 $a\,(R \circ R^{-1})\,6$ 也成立

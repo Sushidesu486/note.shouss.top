@@ -86,3 +86,6 @@ body, input, button, select { letter-spacing: 0; }
   .token-tool { padding: .65rem; }
   .token-result output { font-size: 1rem; }
 }
+/* Display math (block formulas): scroll horizontally instead of overflowing the page on narrow screens.
+   Inline math is wrapped in the same .arithmatex span, so scope this to wrappers of display containers only. */
+.md-typeset .arithmatex:has(> mjx-container[display="true"]) { display: block; overflow-x: auto; padding-bottom: 2px; }
