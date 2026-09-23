@@ -34,6 +34,8 @@ body, input, button, select { letter-spacing: 0; }
 .md-typeset table:not([class]) { font-size: .73rem; line-height: 1.65; border-color: var(--reading-line); }
 .md-typeset table:not([class]) th { background: var(--reading-surface); min-width: 6rem; }
 .md-typeset .arithmatex { max-width: 100%; overflow-x: auto; overflow-y: hidden; }
+/* Inline spans otherwise ignore max-width; long formulas must fit their list item on every platform. */
+.md-typeset span.arithmatex { display: inline-block; vertical-align: middle; }
 .md-typeset .arithmatex mjx-container { max-width: none; }
 .md-typeset figure.paper-figure { margin: 1.4rem 0; padding: .8rem 0; border-top: 1px solid var(--reading-line); border-bottom: 1px solid var(--reading-line); width: 100%; max-width: none; }
 .paper-figure > p { margin: 0; }
