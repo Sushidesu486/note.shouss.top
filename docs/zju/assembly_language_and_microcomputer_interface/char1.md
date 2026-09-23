@@ -48,8 +48,12 @@ $$(-1)^{\text{sign}} \times (1 + \text{fraction}) \times 2^{\text{exponent} - \t
 ### Subnormal Numbers（非规格化数）
 
 - 介于最小 normal number（$1.0 \times 2^{-126}$）与 0 之间的数
-- 表示：指数全 0、尾数非全 0，**不加隐含 1**：
-  $$\text{subnormal} = (-1)^{\text{sign}} \times \text{fraction} \times 2^{1-\text{bias}} \quad (\text{single: } 2^{-126})$$
+- 表示：指数全 0、尾数非全 0，**不加隐含 1**（single 精度下指数为 $-126$）：
+
+    $$
+    \text{subnormal} = (-1)^{\text{sign}} \times \text{fraction} \times 2^{1-\text{bias}}
+    $$
+
 - 设计意图：按此公式计算的 subnormal 与最小的 normal number **衔接最紧密、最平滑**——差在最末一个 bit，IEEE 委员会（图灵奖得主，数值计算专家）的精细设计
 - 两种下溢处理策略（Abrupt Underflow vs Gradual Underflow）：
     - **Motorola**：flush to zero——小到一定程度突然当作 0，**保性能、降精度**
