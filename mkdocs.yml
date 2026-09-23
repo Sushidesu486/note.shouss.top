@@ -118,5 +118,8 @@ nav:
     - 操作系统:
       - 总览: zju/operation_system/index.md
       - Ch1 · Introduction: zju/operation_system/char1.md
+      - Ch2 · Operating-System Structure: zju/operation_system/char2.md
     - 计算机网络:
       - 总览: zju/computer_internet/index.md
+      - Ch1 · 网络组成、交换与分层: zju/computer_internet/intro.md
+      - Socket 编程 · 引入与续写起点: zju/computer_internet/socket_programming.md

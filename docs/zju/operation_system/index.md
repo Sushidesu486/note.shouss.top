@@ -2,6 +2,13 @@
 
 > sld: 上过这门课你就知道什么是系统了
 
+## 笔记进度
+
+- 已对照智云课堂补记至 **2026-09-20 第 9–10 节**：系统调用参数传递、策略与机制、内核结构、虚拟机与容器，见[第二章](char2.md#system-call-parameter-passing)。
+- [第一章](char1.md#device-status-table)补齐 9 月 17 日 I/O 之后至进程管理的缺口。该段原始字幕存在串课，采用实际 PPT 截图整理，来源说明保留在页面中。
+- **下一次从 Operating System Generation / System Boot 开始**：9 月 20 日 99:05 老师明确留待下次。
+- 已参考 [NoughtQ 的 OS 笔记](https://note.noughtq.top/sys/os/)补充第一、二章：概念主线、模式与上下文切换、I/O 与 IPC、shell、链接与加载、API / ABI。各页标明参考补充和来源，课堂进度仍以上述录像为准。
+
 ## Course Overview
 
 - Program execution
